@@ -1,80 +1,49 @@
 //
 // Created by ckjsuperhh6602 on 25-7-22.
 //
-
 #ifndef RF_H
 #define RF_H
-#include <string>
-#include <bits/types.h>
 
+#include <string>
+#include <cstdint>      // 推荐：标准的<uint32_t>头，而非<bits/types.h>
 #include "Decoder.h"
+
+// 前置声明，避免循环依赖
+struct inst;
+struct instructions;
 
 class Register {
 public:
-    static __uint32_t regs[32];
-    static __uint32_t Rename_regs[32];
+    static uint32_t regs[32];
+    static uint32_t Rename_regs[32];
     static std::string reg_num[32];
-    Register() {
-      initial_set();
-    }
-    static void initial_set() {
-        for (unsigned int & reg : regs) {
-            reg=0;
-        }
-    }
-    static std::string get_name(int reg){
-        if (reg>=32) {
-            return "uk";
-        }
-        return reg_num[reg];
-    }
-    static __uint32_t read(const int reg) {
-        return regs[reg];
-    }
-
-    static void write(const int reg,const __uint32_t num) {
-        regs[reg]=num;
-    }
-};
-
-std::string Register::reg_num[32] = {
-    "zero", "ra", "sp", "gp", "tp", "t0", "t1", "t2",
-    "s0", "s1", "a0", "a1", "a2", "a3", "a4", "a5",
-    "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
-    "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
+    Register();
+    static void initial_set();
+    static std::string get_name(int reg);
+    static uint32_t read(int reg);
+    static void write(int reg, uint32_t num);
+    static int read_pc();
+    static int pc;
 };
 
 class Reg_status {
-    static bool Busy[32];//yes-1,no-0
+public:
+    static bool Busy[32];
+    static bool Busy_pc;
     static int Reorder[32];
-
-
-
-
-
-
-
+    static bool get_busy(int idx);   // 建议把接口声明清楚
 };
-
-inline int Reorder[32]={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-inline bool Busy[32]{};
 
 class Read_regs {
 public:
-    __uint32_t instruction{};
+    uint32_t instruction{};
     std::string op{};
-    int pc{},rd{}, rs1_val{}, rs2_val{}, imm{};
-    explicit Read_regs(const instructions& ins):instruction(ins.instruction),op(ins.op),pc(-1),rd(ins.rd),rs1_val(ins.rs1),rs2_val(ins.rs2),imm(ins.imm) {}
-    bool execute() {
-        if (Busy[rs1_val]||Busy[rs2_val]||Busy[1]) {
-            return false;
-        }
-        this->rs1_val=Register::read(rs1_val);
-        this->rs2_val=Register::read(rs2_val);
-        this->pc=Register::read(1);
-        return true;
-    }
-};
+    int pc{}, rd{}, rs1_val{}, rs2_val{}, imm{};
+    explicit Read_regs(const instructions& ins);
+    explicit Read_regs(const inst& ins);
 
+    void execute(inst &ins, int &Vj, int &Vk, int &Qj, int &Qk, int &Dest, int &A);
+
+};
 
 #endif //RF_H

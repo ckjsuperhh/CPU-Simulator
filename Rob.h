@@ -1,36 +1,46 @@
-//
-// Created by ckjsuperhh6602 on 25-7-22.
-//
-
 #ifndef ROB_H
 #define ROB_H
+
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
+#include <vector>
 
 #include "Decoder.h"
+#include "Memory.h"
+#include "RF.h"
+
+// 声明外部变量，不在头文件定义
+extern std::unordered_set<std::string> read_mem ;
+extern std::unordered_set<std::string> write_mem ;
+extern std::unordered_set<std::string> double_reg;
+extern std::unordered_set<std::string> first_reg ;
+extern std::unordered_set<std::string> only_pc;
+extern std::unordered_set<std::string> load;
+extern std::unordered_set<std::string> add;
+extern std::unordered_set<std::string> jump;
 
 enum State {
-    Waiting,Decoded,Issue,Exec,Write,Commit
+    None,Waiting, Decoded, Issue, Exec, Write, Commit
 };
-struct inst{
-        std::string op;
-        int rd{},rs1{},rs2{},imm{};
-        State st;
-        int value{};
-    explicit inst(const instructions& a):
-    op(a.op),rd(a.rd),rs1(a.rs1),rs2(a.rs2),imm(a.imm),st(Waiting) {}
+
+struct inst {
+    __uint32_t ins{};
+    std::string op{};
+    int pc{-1}, rd{}, rs1{}, rs2{}, imm{};
+    State st{};
+    int value{};
+    explicit inst(const instructions& a);
 };
+
 class ROB {
+public:
     static int head;
     static int tail;
     static inst ROB_Table[10000];
-    static void execute() {
-
-
-
-    };
+    static int code[10000];
+    static bool execute();
+    static std::unordered_map<int,ticker_mem> read_mem;
 };
 
-inline int head=0;
-inline int tail=0;
-
-#endif //ROB_H
+#endif // ROB_H

@@ -13,7 +13,7 @@ class calculate {
 public:
     __uint32_t instruction{};
     std::string op{};
-    int pc{},rd{}, rs1_val{}, rs2_val{}, imm{},value{},value_{};
+    int rd{}, rs1_val{}, rs2_val{}, imm{},value{},value_{};
     std::string type{};
     explicit calculate(const Read_regs& ins):instruction(ins.instruction),op(ins.op),pc(ins.pc),rd(ins.rd),rs1_val(ins.rs1_val),rs2_val(ins.rs2_val),imm(ins.imm) {}
     calculate();

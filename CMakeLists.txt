@@ -12,4 +12,8 @@ add_executable(CPU main.cpp
         LSB.h
         RF.h
         Predictor.h
-        clock.h)
+        clock.h
+        CDB.h
+        Rob.cpp
+        RF.cpp
+        RS.cpp)

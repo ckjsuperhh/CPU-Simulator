@@ -11,9 +11,9 @@ public:
     static int ticker;
 
 
-    static void execute_once() {
+    static bool execute_once() {
         ticker++;
-        ROB::execute();
+        return ROB::execute();
     }
 
 
