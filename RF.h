@@ -6,6 +6,8 @@
 
 #include <string>
 #include <cstdint>      // 推荐：标准的<uint32_t>头，而非<bits/types.h>
+
+#include "CDB.h"
 #include "Decoder.h"
 
 // 前置声明，避免循环依赖
@@ -36,14 +38,12 @@ public:
 
 class Read_regs {
 public:
-    uint32_t instruction{};
-    std::string op{};
-    int pc{}, rd{}, rs1_val{}, rs2_val{}, imm{};
-    explicit Read_regs(const instructions& ins);
-    explicit Read_regs(const inst& ins);
+    static void execute(inst &ins, int &Vj, int &Vk, int &Qj, int &Qk, Posi &pj, Posi &pk);
+};
 
-    void execute(inst &ins, int &Vj, int &Vk, int &Qj, int &Qk, int &Dest, int &A);
-
+class Write_regs {
+public:
+    static void execute(int i, int Reg, int value);
 };
 
 #endif //RF_H

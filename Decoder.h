@@ -5,6 +5,7 @@
 #ifndef DECODER_H
 #define DECODER_H
 #include <iomanip>
+#include <iostream>
 
 inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, int &rs2, int &imm, std::string& type) {
     unsigned int imm_11_5;

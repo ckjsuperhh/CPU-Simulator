@@ -3,6 +3,7 @@
 //
 #include "RF.h"
 #include "Rob.h"
+#include "RS.h"
 
 // ==== Register 静态成员初始化 ====
 uint32_t Register::regs[32] = {0};
@@ -41,16 +42,9 @@ bool Reg_status::get_busy(const int idx) {
     return Busy[idx];
 }
 
-Read_regs::Read_regs(const instructions& ins)
-    : instruction(ins.instruction), op(ins.op), pc(-1), rd(ins.rd),
-      rs1_val(ins.rs1), rs2_val(ins.rs2), imm(ins.imm) {}
 
-Read_regs::Read_regs(const inst& ins)
-    : op(ins.op), pc(-1), rd(ins.rd),
-      rs1_val(ins.rs1), rs2_val(ins.rs2), imm(ins.imm) {}
-
-void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,int & A) {//不需要顺带读pc了,只需要读需要的部分
-    if (double_reg.contains(op)) {
+void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,Posi &pj,Posi &pk) {//不需要顺带读pc了,只需要读需要的部分
+    if (double_reg.contains(ins.op)) {
         if (Reg_status::Busy[ins.rs1]) {
             Qj=Reg_status::Reorder[ins.rs1];
             Vj=-1;
@@ -59,6 +53,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             ins.rs1_val=Vj;
             Qj=-1;
         }
+        pj=rs1;
         if (Reg_status::Busy[ins.rs2]) {
             Qk=Reg_status::Reorder[ins.rs2];
             Vk=-1;
@@ -67,10 +62,11 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             ins.rs2_val=Vk;
             Qk=-1;
         }
+        pk=rs2;
         return;
     }
-    if (first_reg.contains(op)) {
-        if (Reg_status::Busy[rs1_val]) {
+    if (first_reg.contains(ins.op)) {
+        if (Reg_status::Busy[ins.rs1]) {
             Qj=Reg_status::Reorder[ins.rs1];
             Vj=-1;
         }else {//Vj
@@ -78,16 +74,28 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             ins.rs1_val=Vj;
             Qj=-1;
         }
-        Vk=imm;
+        pj=rs1;
+        Vk=ins.imm;
+        pk=imm;
         Qk=-1;
         return;
     }
-    if (only_pc.contains(op)) {
+    if (only_pc.contains(ins.op)) {
+        pj=none;
+        pk=none;
         Qk=Qj=-1;
-        Vk=imm;
+        Vk=ins.imm;
     }
     //"embreak" and "ecall"
 }
+
+void Write_regs::execute(const int i, const int Reg, const int value) {//对应ROB中第几条指令，修改哪个寄存器变成多少(因为有可能写后写这个寄存器已经不需要在被写进去了)
+        if (Reg_status::Reorder[Reg]==i) {//如果对应寄存器确实仍然要写入这个数值的话
+            Reg_status::Busy[Reg]=false;//不忙了
+            Reg_status::Reorder[Reg]=-1;
+            Register::write(Reg,value);//修改寄存器的值
+        }
+};
 int Register::read_pc() {//如果失败就返回-1,不然就是正常值
         if (Busy_pc) {
             return -1;

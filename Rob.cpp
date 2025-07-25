@@ -1,6 +1,8 @@
 //
 // Created by ckjsuperhh6602 on 25-7-24.
 //
+#include "ALUs.h"
+#include "CDB.h"
 #include "Ins_Cache.h"
 #include "rob.h"
 #include "RS.h"
@@ -17,39 +19,75 @@ int ROB::tail = 1;
 inst ROB::ROB_Table[10000]{};
 int ROB::code[10000]{};
 
-// inst构造函数实现（如果函数体不复杂，可以写在struct里，否则习惯性单独写）
+// inst构造函数实现
 inst::inst(const instructions& a)
     :op(a.op), pc(a.pc),rd(a.rd), rs1(a.rs1), rs2(a.rs2), imm(a.imm), st(Decoded) {}
 
 // 静态成员函数实现
 bool ROB::execute() {
-    bool end = true;
+    bool end=false;
+    bool end_of_ALU=false;
+    bool end_of_Commit=false;
     for (int i = head; i <= tail; i++) {
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
             code[i]=RS::launch(ROB_Table[i],i);
+            end=true;
         } else if (ROB_Table[i].st == Issue) {
-            if (RS::Qj[code[i]]==-1&&RS::Qk[code[i]]==-1) {//数据已经做好准备,可以ALUs伺候
-
+            if (!end_of_ALU&&RS::Qj[code[i]]==-1&&RS::Qk[code[i]]==-1) {//数据已经做好准备,可以ALUs伺候
+                calculate::cal(ROB_Table[i]);//答案数据准备好了，注意这边似乎还没有处理pc相关的任务，后续再说吧
+                ROB_Table[i].st=Exec;
+                CDB::add(i,ROB_Table[i].value);//加入队列中准备进行一个数据的广播
+                end_of_ALU=true;//一次只允许一次ALU工作
+                end=true;
             }//否则就等待数据全部都准备好了
-        } else if (ROB_Table[i].st == Exec) {//运行完观察是否要写回Reg和内存
-            if () {
-                end = false;
+            if (!load.contains(ROB_Table[i].op)) {
+                RS::clear(code[i]);
             }
-        } else if (ROB_Table[i].st == Write) {//读写内存和寄存器
+            //我发现好像这一步就可以清空对应的RS了，除了Load相关的指令以外，下一步都准备提交了
+        } else if (ROB_Table[i].st == Exec) {//运行完观察是否要写回Reg和内存,这个时候就要分类是否与内存有关
+            if (i==0) {//特判，因为没有上一条，可以直接运行
+                if (add.contains(ROB_Table[i].op)) {
+                    Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
+                    ROB_Table[i].st=Commit;
+                    head++;
+                    end_of_Commit=true;
+                }else if () {//其他情况以后再进行尝试
+
+                }
+                //我应该修改寄存器，对应的值，这应该就够了
+
+            }else {
+                if (ROB_Table[i-1].st==Commit&&!end_of_Commit){//上一条必须是已经Commit过了并且这回合没有其他提交过
+                    if (add.contains(ROB_Table[i].op)) {
+                        Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
+                        ROB_Table[i].st=Commit;
+                        head++;
+                        end_of_Commit=true;
+                    }else if () {
+
+                    }
+                }
+            }
+            end=true;
+        } else if (ROB_Table[i].st == Write) {//读写内存和寄存器,与LSB有关，我现在先不写
 
 
 
 
 
             head++;
+            end=true;
         } else {
             if (ROB_Table[i].st == None) {//还没有载入语句
-                if (!Ins_Cache::cache.empty()) {//如果非空就可以载入一条指令，由于是最后在None的位置载入，所以jump指令的处理必定会在载入之前，可以及时封存载入(clear掉)
-                        const auto t=Ins_Cache::read();
-                    ROB_Table[i].pc=t.second;
-                    ROB_Table[i].ins=t.first;
+                if (!Ins_Cache::cache.empty()&&!Reg_status::Busy_pc) {//如果非空就可以载入一条指令，由于是最后在None的位置载入，所以jump指令的处理必定会在载入之前，可以及时封存载入(clear掉),但我还是写上与Busy_pc相关的逻辑吧
+                    const auto [fst, snd]=Ins_Cache::read();
+                    ROB_Table[i].pc=snd;
+                    ROB_Table[i].ins=fst;
                     tail++;
                     Register::pc=ROB_Table[i].pc;//当且仅当载入的时候正常修改pc,其他可能会修改pc的情况仅仅存在于ALU
+                    end=true;
+                }else if (!Ins_Cache::cache_mem.empty()||Ins_Cache::st==WAITING||Ins_Cache::st==LAST_READ) {//如果其他指令都不再运行了，但是还有指令没有导入，但是指令队列空了，那我应该还要特判一下
+                    end=true;//如果等待读入的站还没空,或者还处在等待状态中,我就不能随意结束程序
                 }
             }else {//需要进行Decode(一般只要能够到这一步,都是可以运行并且准备发布的)
                 if (instructions ins(ROB_Table[i].ins,ROB_Table[i].pc); ins.op=="uk") {
@@ -57,6 +95,7 @@ bool ROB::execute() {
                 }else {
                     ROB_Table[i]=inst{ins};//Decode完成之后,我需要准备开始发射了
                 }
+                end=true;
             }
         }
     }
