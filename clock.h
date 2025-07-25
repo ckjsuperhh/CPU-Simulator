@@ -4,6 +4,7 @@
 
 #ifndef CLOCK_H
 #define CLOCK_H
+#include "Ins_Cache.h"
 #include "Rob.h"
 
 class clock {
@@ -13,6 +14,7 @@ public:
 
     static bool execute_once() {
         ticker++;
+        Ins_Cache::check();//每一个时钟都要检查一下指令缓存有没有做
         return ROB::execute();
     }
 

@@ -56,6 +56,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             Vj=-1;
         }else {//Vj
             Vj = Register::read(ins.rs1);
+            ins.rs1_val=Vj;
             Qj=-1;
         }
         if (Reg_status::Busy[ins.rs2]) {
@@ -63,6 +64,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             Vk=-1;
         }else {//Vk
             Vk = Register::read(ins.rs2);
+            ins.rs2_val=Vk;
             Qk=-1;
         }
         return;
@@ -73,6 +75,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,int &Dest,in
             Vj=-1;
         }else {//Vj
             Vj = Register::read(ins.rs1);
+            ins.rs1_val=Vj;
             Qj=-1;
         }
         Vk=imm;

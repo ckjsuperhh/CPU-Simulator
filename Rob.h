@@ -27,7 +27,7 @@ enum State {
 struct inst {
     __uint32_t ins{};
     std::string op{};
-    int pc{-1}, rd{}, rs1{}, rs2{}, imm{};
+    int pc{-1}, rd{}, rs1{}, rs2{},rs1_val{},rs2_val{}, imm{};
     State st{};
     int value{};
     explicit inst(const instructions& a);

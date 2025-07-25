@@ -16,4 +16,5 @@ add_executable(CPU main.cpp
         CDB.h
         Rob.cpp
         RF.cpp
-        RS.cpp)
+        RS.cpp
+        Ins_Cache.h)

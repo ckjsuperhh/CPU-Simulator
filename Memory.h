@@ -20,12 +20,14 @@ inline __uint32_t Binary_Little_Endian(char ins[]){
 class Memory {
 public:
     static std::map<__uint32_t,__uint32_t> mem;
+
     static __uint32_t read(const __uint32_t from) {
        if (!mem.contains(from)) {
            return 0;
        }
         return mem[from];
     }
+
     static void write(const __uint32_t to,const __uint32_t data) {
         if (!mem.contains(to)) {
             mem.insert({to,data});
@@ -60,6 +62,7 @@ public:
             }
         }
     }
+
     static void show_mem() {
         for (const auto &[fst, snd] : mem) {
             std::cout<<std::hex<<fst<<": "<<std::setw(8)<<std::setfill('0')<<snd<<std::endl;
@@ -72,11 +75,13 @@ public:
     friend class Memory;
     int ticker{};
     __uint32_t pc{},val{};
+
     ticker_mem()=default;
     explicit ticker_mem(const __uint32_t pc, const __uint32_t val=0):pc(pc){
         this->val=val;
         ticker=0;
     }
+
     bool read() {
         if (++ticker!=3) {
             return false;
@@ -84,6 +89,7 @@ public:
         this->val=Memory::read(pc);
         return true;
     }
+
     bool write() {
         if (++ticker!=3) {
             return false;
