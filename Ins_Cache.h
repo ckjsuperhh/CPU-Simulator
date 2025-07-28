@@ -44,7 +44,7 @@ public:
 
         if (st==NONE) {
             for (int i=0;i<8;++i,pc+=4) {//用了一些奇技淫巧，如果pc加完之后，内存读不出来东西，说明读到头了
-                if (Memory::read(pc)!=0){//不会有指令是全0吧
+                if (Memory::read4(pc)!=0){//不会有指令是全0吧,那么这边就用于判错
                     st=LAST_READ;
                     break;
                 }
@@ -59,11 +59,11 @@ public:
             while (!cache_mem.empty()) {
                 tmp.push_back(cache_mem.front());
                 cache_mem.pop();
-                ok=tmp.back().first.read();
+                ok=tmp.back().first.read4();
             }
             if (ok) {
                 for (auto &[fst, snd]:tmp ) {
-                    cache.emplace(fst.val,snd);
+                    cache.emplace(Binary_Little_Endian(std::to_string(fst.val).data()),snd);
                 }//读取成功之后就直接写到缓存中
                 st=FINISHED;
             }else {
@@ -77,7 +77,7 @@ public:
             while (!cache_mem.empty()) {
                 tmp.push_back(cache_mem.front());
                 cache_mem.pop();
-                ok=tmp.back().first.read();
+                ok=tmp.back().first.read4();
             }
             if (ok) {
                 for (auto &[fst, snd]:tmp ) {
@@ -93,7 +93,7 @@ public:
             if (cache.size()<=3) {//如果发现剩余存量不足3(正好后续时间只够load三条语句)
                 bool hit_last_read = false;
                 for (int i=0;i<8-cache.size();++i,pc+=4) {
-                    if (Memory::read(pc)!=0){
+                    if (Memory::read4(pc)!=0){
                         hit_last_read = true;
                         break;
                     }

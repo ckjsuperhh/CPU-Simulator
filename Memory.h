@@ -21,18 +21,55 @@ class Memory {
 public:
     static std::map<__uint32_t,__uint32_t> mem;
 
-    static __uint32_t read(const __uint32_t from) {
-       if (!mem.contains(from)) {
-           return 0;
-       }
+    static __uint32_t read4(const __uint32_t from) {
+        if (!mem.contains(from)||!mem.contains(from+1)||!mem.contains(from+2)||!mem.contains(from+3)) {
+            throw;
+        }
+        return mem[from]<<24|mem[from+1]<<16|mem[from+2]<<8|mem[from+3];
+    }
+
+    static __uint16_t read2(const __uint32_t from) {
+        if (!mem.contains(from)||!mem.contains(from+1)) {
+            throw;
+        }
+        return mem[from]<<8|mem[from+1];
+    }
+
+    static __uint8_t read1(const __uint32_t from) {
+        if (!mem.contains(from)) {
+            throw;
+        }
         return mem[from];
     }
 
-    static void write(const __uint32_t to,const __uint32_t data) {
-        if (!mem.contains(to)) {
-            mem.insert({to,data});
+    static void write4(const __uint32_t to,char ins[]) {
+        unsigned char bytes[4];
+        for (int i = 0; i < 4; ++i) {
+            const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
+            bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
+        if (!mem.contains(to+i)) {
+                mem.insert({to+i,bytes[i]});
+            }else{mem[to+i]=bytes[i];}
         }
-        mem[to]=data;
+    }
+
+    static void write2(const __uint32_t to,char ins[]) {
+        unsigned char bytes[2];
+        for (int i = 0; i < 2; ++i) {
+            // 每次取2个字符，组成一个十六进制数
+            const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
+            // 转换为字节并存储
+            bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
+            if (!mem.contains(to+i)) {
+                mem.insert({to+i,bytes[i]});
+            }else{mem[to+i]=bytes[i];}
+        }
+    }
+
+    static void write1(const __uint32_t to,const char ins[]) {
+        if (!mem.contains(to)) {
+            mem.insert({to, std::stoi(ins)});
+        }else{mem[to]=std::stoi(ins);}
     }
 
     static void store_ins() {
@@ -56,8 +93,8 @@ public:
                     }
                 }
                 ins[8]='\0';
-                const __uint32_t instruction=Binary_Little_Endian(ins);
-                write(pc,instruction);
+                // const __uint32_t instruction=Binary_Little_Endian(ins);
+                write4(pc,ins);
                 pc+=4;
             }
         }
@@ -77,26 +114,59 @@ public:
     __uint32_t pc{},val{};
 
     ticker_mem()=default;
-    explicit ticker_mem(const __uint32_t pc, const __uint32_t val=0):pc(pc){
+    explicit ticker_mem(const __uint32_t pc, const __int32_t val=0):pc(pc){
         this->val=val;
         ticker=0;
     }
 
-    bool read() {
+    bool read4() {
         if (++ticker!=3) {
             return false;
         }
-        this->val=Memory::read(pc);
+        this->val=Memory::read4(pc);
         return true;
     }
 
-    bool write() {
+    bool read2() {
         if (++ticker!=3) {
             return false;
         }
-        Memory::write(pc,val);
+        this->val=Memory::read2(pc);
         return true;
     }
+
+    bool read1() {
+        if (++ticker!=3) {
+            return false;
+        }
+        this->val=Memory::read1(pc);
+        return true;
+    }
+
+    bool write4() {
+        if (++ticker!=3) {
+            return false;
+        }
+        Memory::write4(pc,std::to_string(val).data());
+        return true;
+    }
+
+    bool write2() {
+        if (++ticker!=3) {
+            return false;
+        }
+        Memory::write2(pc,std::to_string(static_cast<__int16_t>(val)).data());
+        return true;
+    }
+
+    bool write1() {
+        if (++ticker!=3) {
+            return false;
+        }
+        Memory::write1(pc,std::to_string(static_cast<__int8_t>(val)).data());
+        return true;
+    }
+
 };
 
 

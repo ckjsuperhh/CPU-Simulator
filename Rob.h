@@ -25,6 +25,7 @@ enum State {
 };
 
 struct inst {
+    int i{};
     __uint32_t ins{};
     std::string op{};
     int pc{-1}, rd{}, rs1{}, rs2{},rs1_val{},rs2_val{}, imm{};

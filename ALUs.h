@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include "Decoder.h"
+#include "Ins_Cache.h"
 #include "RF.h"
 #include "Rob.h"
 
@@ -67,40 +68,58 @@ public:
             ins.value = ins.rs1_val+ins.imm;
         } else if (ins.op == "sw") {
             ins.value = ins.rs1_val+ins.imm;
-        } else if (ins.op == "beq") {
+        } else if (ins.op == "beq") {//对于有条件的跳转，我就等到跳转完成之后再清空
             if (ins.rs1_val==ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
             }
         } else if (ins.op == "bge") {
             if (ins.rs1_val>=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
             }
         } else if (ins.op == "bgeu") {
-            if (ins.rs1_val<ins.rs2_val) {
+            if (ins.rs1_val>=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
             }
         } else if (ins.op == "blt") {
-            if (ins.rs1_val!=ins.rs2_val) {
+            if (ins.rs1_val<ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
             }
         } else if (ins.op == "bltu") {
-
+            if (ins.rs1_val<ins.rs2_val) {
+                ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
+            }
         } else if (ins.op == "bne") {
-
+            if (ins.rs1_val!=ins.rs2_val) {
+                ins.value=ins.pc+ins.imm;
+                Register::pc=ins.value;
+                Ins_Cache::clear(Register::pc);
+            }
         } else if (ins.op == "jal") {
-
+            ins.value=ins.pc+4;
+            Register::pc=ins.pc+ins.imm;
         } else if (ins.op == "jalr") {
-
+            ins.value=ins.pc+4;
+            Register::pc=ins.rs1_val+ins.imm;
         } else if (ins.op == "auipc") {
-
+            ins.value=ins.imm+ins.pc;
+            ins.imm<<=12;
         } else if (ins.op == "lui") {
-
+            ins.value=ins.imm;
+            ins.imm<<=12;
         } else if (ins.op == "ebreak") {
-
+            std::cout<<"Asking the debugger to do something"<<std::endl;
         } else if (ins.op == "ecall") {
-
-        } else if (ins.op == "mul") {
-
+            std::cout<<"Asking the OS to do something"<<std::endl;
         } else {
             std::cout<<"unknown instruction"<<std::endl;
         }

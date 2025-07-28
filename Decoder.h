@@ -257,7 +257,7 @@ public:
     __uint32_t instruction;
     std::string op;
     int pc;
-    int rd, rs1, rs2, imm;
+    int rd{}, rs1{}, rs2, imm;
     std::string type;
 
     explicit instructions(const __uint32_t ins,const int pc) :instruction(ins), pc(pc), rs2(0), imm(0) {
