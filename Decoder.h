@@ -266,26 +266,26 @@ public:
 
 
     void show() const {
-        std::cout << std::setfill('0') << std::setw(8) << std::hex << instruction;
+        std::cerr << std::setfill('0') << std::setw(8) << std::hex << instruction;
         for (int i = 0; i < 12; i++) {
-            std::cout << " ";
+            std::cerr << " ";
         }
         if (type == "R") {
-            std::cout << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << trans_reg(rs2) << std::endl;
+            std::cerr << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << trans_reg(rs2) << std::endl;
         } else if (type == "S") {
-            std::cout << op << " " << trans_reg(rs2) << " " << trans_imm(imm) << "(" << trans_reg(rs1) << ")" << std::endl;
+            std::cerr << op << " " << trans_reg(rs2) << " " << trans_imm(imm) << "(" << trans_reg(rs1) << ")" << std::endl;
         } else if (type == "B") {
-            std::cout << op << " " << trans_reg(rs1) << " " << trans_reg(rs2) << " " << trans_imm(imm) << std::endl;
+            std::cerr << op << " " << trans_reg(rs1) << " " << trans_reg(rs2) << " " << trans_imm(imm) << std::endl;
         } else if (type == "U" || op == "jal") {
-            std::cout << op << " " << trans_reg(rd) << " " << imm << std::endl;
+            std::cerr << op << " " << trans_reg(rd) << " " << imm << std::endl;
         } else if (op == "ebreak" || op == "ecall") {
-            std::cout << op << std::endl;
+            std::cerr << op << std::endl;
         } else if (op == "jalr") {
-            std::cout << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << imm << std::endl;
+            std::cerr << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << imm << std::endl;
         } else if (op == "lb" || op == "lbu" || op == "lh" || op == "lhu" || op == "lw") {
-            std::cout << op << " " << trans_reg(rd) << " " << trans_imm(imm) << "(" << trans_reg(rs1) << ")" << std::endl;
+            std::cerr << op << " " << trans_reg(rd) << " " << trans_imm(imm) << "(" << trans_reg(rs1) << ")" << std::endl;
         } else {
-            std::cout << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << trans_imm(imm) << std::endl;
+            std::cerr << op << " " << trans_reg(rd) << " " << trans_reg(rs1) << " " << trans_imm(imm) << std::endl;
         }
     }
 

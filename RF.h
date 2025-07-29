@@ -9,10 +9,12 @@
 
 #include "CDB.h"
 #include "Decoder.h"
+#include "RS.h"
 
 // 前置声明，避免循环依赖
 struct inst;
-struct instructions;
+class instructions;
+enum class Posi;
 
 class Register {
 public:

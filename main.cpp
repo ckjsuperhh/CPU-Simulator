@@ -4,15 +4,16 @@
 #include  "Decoder.h"
 #include "Memory.h"
 #include "Rob.h"
-std::map<__uint32_t, __uint32_t> Memory::mem;
+std::map<__uint32_t, __uint8_t> Memory::mem;
 
 
 
 int main() {
 
     Memory::store_ins();
-    while (clock::execute_once()) {}
-    std::cout<<clock::ticker<<std::endl;
+    Memory::show_mem();
+    while (clock::execute_once()) {std::cerr<<"clk:"<<clock::ticker<<std::endl;}
+
     return 0;
 }
 

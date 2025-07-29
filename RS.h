@@ -7,9 +7,10 @@
 #include <string>
 
 #include "Rob.h"
-enum Posi {
+enum class Posi {
     none,rs1,rs2,imm,rd
 };
+struct inst;
 
 class RS {
 public:
@@ -28,5 +29,9 @@ public:
     static int launch(inst &ins, int i);
 
     static void clear(int i);
+
+    static void show(int i);
+
+    static std::string pos_show(Posi p);
 };
 #endif //RS_H

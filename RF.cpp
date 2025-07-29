@@ -14,6 +14,7 @@ std::string Register::reg_num[32] = {
     "a6", "a7", "s2", "s3", "s4", "s5", "s6", "s7",
     "s8", "s9", "s10", "s11", "t3", "t4", "t5", "t6"
 };
+int Register::pc=0;
 
 // Register成员函数实现
 Register::Register() { initial_set(); }
@@ -31,7 +32,7 @@ uint32_t Register::read(const int reg) {
 void Register::write(const int reg, const uint32_t num) {
     regs[reg] = num;
 }
-bool Busy_pc=false;
+bool Reg_status::Busy_pc=false;
 bool Reg_status::Busy[32] = {false};
 int Reg_status::Reorder[32] = {
     -1,-1,-1,-1,-1,-1,-1,-1, -1,-1,-1,-1,-1,-1,-1,-1,
@@ -53,7 +54,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,Posi &pj,Pos
             ins.rs1_val=Vj;
             Qj=-1;
         }
-        pj=rs1;
+        pj=Posi::rs1;
         if (Reg_status::Busy[ins.rs2]) {
             Qk=Reg_status::Reorder[ins.rs2];
             Vk=-1;
@@ -62,7 +63,7 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,Posi &pj,Pos
             ins.rs2_val=Vk;
             Qk=-1;
         }
-        pk=rs2;
+        pk= Posi::rs2;
         return;
     }
     if (first_reg.contains(ins.op)) {
@@ -74,15 +75,15 @@ void Read_regs::execute(inst& ins,int & Vj,int&Vk,int & Qj,int & Qk,Posi &pj,Pos
             ins.rs1_val=Vj;
             Qj=-1;
         }
-        pj=rs1;
+        pj= Posi::rs1;
         Vk=ins.imm;
-        pk=imm;
+        pk=Posi::imm;
         Qk=-1;
         return;
     }
     if (only_pc.contains(ins.op)) {
-        pj=none;
-        pk=none;
+        pj=Posi::none;
+        pk=Posi::none;
         Qk=Qj=-1;
         Vk=ins.imm;
     }
@@ -97,7 +98,7 @@ void Write_regs::execute(const int i, const int Reg, const int value) {//对应R
         }
 };
 int Register::read_pc() {//如果失败就返回-1,不然就是正常值
-        if (Busy_pc) {
+        if (Reg_status::Busy_pc) {
             return -1;
         }
         return pc;

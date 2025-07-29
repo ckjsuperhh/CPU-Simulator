@@ -31,6 +31,7 @@ struct inst {
     int pc{-1}, rd{}, rs1{}, rs2{},rs1_val{},rs2_val{}, imm{};
     State st{};
     int value{};
+    inst();
     explicit inst(const instructions& a);
 };
 
@@ -40,7 +41,8 @@ public:
     static int tail;
     static inst ROB_Table[10000];
     static int code[10000];
-    static bool execute();
+    static bool execute_5();
+    static bool execute_1();
     static std::unordered_map<int,ticker_mem> read_mem;
 };
 

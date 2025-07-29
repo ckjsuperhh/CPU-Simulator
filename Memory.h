@@ -4,6 +4,7 @@
 
 #ifndef MEMORY_H
 #define MEMORY_H
+#include <bitset>
 #include <iostream>
 #include <map>
 #include <bits/types.h>
@@ -19,25 +20,25 @@ inline __uint32_t Binary_Little_Endian(char ins[]){
 
 class Memory {
 public:
-    static std::map<__uint32_t,__uint32_t> mem;
+    static std::map<__uint32_t,__uint8_t> mem;
 
     static __uint32_t read4(const __uint32_t from) {
         if (!mem.contains(from)||!mem.contains(from+1)||!mem.contains(from+2)||!mem.contains(from+3)) {
-            throw;
+            return 0;
         }
         return mem[from]<<24|mem[from+1]<<16|mem[from+2]<<8|mem[from+3];
     }
 
     static __uint16_t read2(const __uint32_t from) {
         if (!mem.contains(from)||!mem.contains(from+1)) {
-            throw;
+            return 0;
         }
         return mem[from]<<8|mem[from+1];
     }
 
     static __uint8_t read1(const __uint32_t from) {
         if (!mem.contains(from)) {
-            throw;
+            return 0;
         }
         return mem[from];
     }
@@ -101,8 +102,8 @@ public:
     }
 
     static void show_mem() {
-        for (const auto &[fst, snd] : mem) {
-            std::cout<<std::hex<<fst<<": "<<std::setw(8)<<std::setfill('0')<<snd<<std::endl;
+        for(auto [key,val]:mem){
+            std::cout<<std::hex<<std::setw(4)<<key<<std::dec<<":"<<std::bitset<8>(val)<<std::endl;
         }
     }
 };
