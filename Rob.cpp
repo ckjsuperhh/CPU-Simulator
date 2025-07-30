@@ -5,7 +5,7 @@
 #include "CDB.h"
 #include "Ins_Cache.h"
 #include "LSB.h"
-#include "rob.h"
+#include "Rob.h"
 #include "RS.h"
 std::unordered_set<std::string> read_mem = {"lb", "lbu", "lh", "lhu", "lw"};
 std::unordered_set<std::string> write_mem ={ "sb","sh","sw"};
