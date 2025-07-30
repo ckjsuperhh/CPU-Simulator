@@ -39,9 +39,9 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
     switch (const auto opcode = ins & 127; opcode) {
         case 0b0110011:
             type = "R";
-            rd = (ins >> 7) & 15;
-            rs1 = (ins >> 15) & 15;
-            rs2 = (ins >> 20) & 15;
+            rd = (ins >> 7) & 31;
+            rs1 = (ins >> 15) & 31;
+            rs2 = (ins >> 20) & 31;
             switch (const auto funct3 = (ins >> 12) & 7; funct3) {
                 case 0b000:
                     switch (const auto funct7 = (ins >> 25) & 127; funct7) {

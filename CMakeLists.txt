@@ -20,4 +20,5 @@ add_executable(code main.cpp
         Ins_Cache.h
         CDB.cpp
         Ins_Cache.cpp
-        LSB.cpp)
+        LSB.cpp
+        clock.cpp)

@@ -6,6 +6,8 @@
 #include "Ins_Cache.h"
 #include "LSB.h"
 #include "Rob.h"
+
+#include "clock.h"
 #include "RS.h"
 std::unordered_set<std::string> read_mem = {"lb", "lbu", "lh", "lhu", "lw"};
 std::unordered_set<std::string> write_mem ={ "sb","sh","sw"};
@@ -25,7 +27,7 @@ int ROB::MOD=500;
 inst::inst(){}
 inst::inst(const instructions& a)
     :i(-1),op(a.op), pc(a.pc),rd(a.rd), rs1(a.rs1), rs2(a.rs2), imm(a.imm), st(Decoded) {}
-
+inline int p=0;
 // 静态成员函数实现
 bool ROB::execute_5() {
     bool end=false;
@@ -66,6 +68,7 @@ bool ROB::execute_5() {
                 if (add.contains(ROB_Table[i].op)) {
                     if (ROB_Table[i].ins==0x0ff00513) {
                         std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                        std::cerr<<std::dec<<"clk:"<<clock::ticker<<std::endl;
                         exit(0);
                     }
                     Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
@@ -97,6 +100,7 @@ bool ROB::execute_5() {
                     if (add.contains(ROB_Table[i].op)) {
                         if (ROB_Table[i].ins==0x0ff00513) {
                             std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                            std::cerr<<std::dec<<"clk:"<<clock::ticker<<std::endl;
                             exit(0);
                         }
                         Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
@@ -197,6 +201,7 @@ bool ROB::execute_1() {
                 if (add.contains(ROB_Table[i].op)) {
                     if (ROB_Table[i].ins==0x0ff00513) {
                         std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                        std::cerr<<std::dec<<"clk:"<<clock::ticker<<std::endl;
                         exit(0);
                     }
                     Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
@@ -222,6 +227,10 @@ bool ROB::execute_1() {
                     if (add.contains(ROB_Table[i].op)) {
                         if (ROB_Table[i].ins==0x0ff00513) {
                             std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                            // std::cerr<<std::dec<<"clk:"<<clock::ticker<<std::endl;
+                            // for (int s=2;s<=10;s++) {
+                                // std::cout<< clock::answer[s]<<std::endl;
+                            // }
                             exit(0);
                         }
                         Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);//不写回去，而是保持原来的值
@@ -260,6 +269,13 @@ bool ROB::execute_1() {
                     const auto [fst, snd]=Ins_Cache::read();
                     ROB_Table[i].pc=snd;
                     ROB_Table[i].ins=fst;
+                    if (ROB_Table[i].ins==0x00f54533) {
+                        std::cout<<p<<":"<<Register::regs[10]<<std::endl;
+                        ++p;
+                    }
+                    if (ROB_Table[i].ins==0x00f907b3) {
+                        std::cout<<"?????\n";
+                    }
                     ROB_Table[i].st=Waiting;
                     tail++;
                     Register::pc=ROB_Table[i].pc;//当且仅当载入的时候正常修改pc,其他可能会修改pc的情况仅仅存在于ALU
@@ -273,7 +289,7 @@ bool ROB::execute_1() {
                     //我也不知道应该怎么办
                 }else {
                     // std::cerr<<"Decoding:"<<"(decoded info)\n";
-                    // ins.show();
+                    ins.show();
                     const int pc=ROB_Table[i].pc;//来个暗度陈仓
                     const __uint32_t instruction=ROB_Table[i].ins;
                     ROB_Table[i]=inst{ins};//Decode完成之后,我需要准备开始发射了
