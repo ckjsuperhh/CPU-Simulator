@@ -12,9 +12,9 @@ class clock {
 public:
     static int ticker;
     static bool execute_once() {
-        if (ticker==228) {
-            Memory::show_mem();
-        }
+        // if (ticker==228) {
+        //     Memory::show_mem();
+        // }
         // std::cerr<<"ra="<<std::hex<<Register::regs[1]<<std::endl;
         // std::cerr<<"sp="<<std::hex<<Register::regs[2]<<std::endl;
         // std::cerr<<"s0="<<std::hex<<Register::regs[8]<<std::endl;
