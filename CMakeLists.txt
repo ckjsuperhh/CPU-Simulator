@@ -3,7 +3,7 @@ project(code)
 
 set(CMAKE_CXX_STANDARD 26)
 
-add_executable(CPU main.cpp
+add_executable(code main.cpp
         Decoder.h
         ALUs.h
         Memory.h
