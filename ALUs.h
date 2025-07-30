@@ -107,7 +107,7 @@ public:
             if (ins.rs1_val!=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
-                Ins_Cache::clear(Register::pc);//clear顺带已经修改过pc的值了
+                Ins_Cache::clear(Register::pc);//clear顺带已经修改过pc的值了(不然内部的值已经维护好了，就是pc读到的位置+4)
             }
             Reg_status::Busy_pc=false;
         } else if (ins.op == "jal") {

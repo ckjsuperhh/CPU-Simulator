@@ -22,7 +22,7 @@ int RS::launch(inst &ins, const int i) {
     //先查找是否有空闲的档位
     if (load.contains(ins.op)) {
         if (!busy_l[0]) {
-            std::cerr<<"loading the first position of RS load\n";
+            // std::cerr<<"loading the first position of RS load\n";
             ins.st=Issue;
             busy_l[0]=true;
             op[0]=ins.op;
@@ -31,11 +31,11 @@ int RS::launch(inst &ins, const int i) {
             if (ins.op=="lb"||ins.op=="lbu"||ins.op=="lh"||ins.op=="lhu"||ins.op=="lw") {
                 Write_regs::mark_Reg(ins.rd,i);
             }//Launch的同时我也应该把RF修改掉
-            std::cerr<<"here are the RS:\n";
-            show(0);
+            // std::cerr<<"here are the RS:\n";
+            // show(0);
             return 0;
         }else if (!busy_l[1]) {
-            std::cerr<<"loading the second position of RS load\n";
+            // std::cerr<<"loading the second position of RS load\n";
             ins.st=Issue;
             busy_l[1]=true;
             op[1]=ins.op;
@@ -44,43 +44,43 @@ int RS::launch(inst &ins, const int i) {
             if (ins.op=="lb"||ins.op=="lbu"||ins.op=="lh"||ins.op=="lhu"||ins.op=="lw") {
                 Write_regs::mark_Reg(ins.rd,i);
             }
-            std::cerr<<"here are the RS:\n";
-            show(1);
+            // std::cerr<<"here are the RS:\n";
+            // show(1);
             return 1;
         }else {
-            std::cerr<<"no spare RS position,launch failed"<<std::endl;
+            // std::cerr<<"no spare RS position,launch failed"<<std::endl;
             return -1;//没有空闲的档位.不做调整
         }
     }else if (add.contains(ins.op)) {
         if (!busy_a[0]) {
-            std::cerr<<"loading the first position of RS add\n";
+            // std::cerr<<"loading the first position of RS add\n";
             ins.st=Issue;
             busy_a[0]=true;
             op[2]=ins.op;
             Dest[2]=i;
             Read_regs::execute(ins,Vj[2],Vk[2],Qj[2],Qk[2],pj[2],pk[2]);//读取Reg的值,并且修改RS表
             Write_regs::mark_Reg(ins.rd,i);
-            std::cerr<<"here are the RS:\n";
-            show(2);
+            // std::cerr<<"here are the RS:\n";
+            // show(2);
             return 2;
         }else if (!busy_a[1]) {
-            std::cerr<<"loading the second position of RS add\n";
+            // std::cerr<<"loading the second position of RS add\n";
             ins.st=Issue;
             busy_a[1]=true;
             op[3]=ins.op;
             Dest[3]=i;
             Read_regs::execute(ins,Vj[3],Vk[3],Qj[3],Qk[3],pj[3],pk[3]);
             Write_regs::mark_Reg(ins.rd,i);
-            std::cerr<<"here are the RS:\n";
-            show(3);
+            // std::cerr<<"here are the RS:\n";
+            // show(3);
             return 3;
         }else {
-            std::cerr<<"no spare RS position,launch failed"<<std::endl;
+            // std::cerr<<"no spare RS position,launch failed"<<std::endl;
             return -1;//没有空闲的档位.不做调整
         }
     }else if (jump.contains(ins.op)){
         if (!busy_j[0]) {
-            std::cerr<<"loading the first position of RS jump\n";
+            // std::cerr<<"loading the first position of RS jump\n";
             ins.st=Issue;
             busy_j[0]=true;
             op[4]=ins.op;
@@ -90,11 +90,11 @@ int RS::launch(inst &ins, const int i) {
                 Write_regs::mark_Reg(ins.rd,i);
             }
 
-            std::cerr<<"here are the RS:\n";
-            show(4);
+            // std::cerr<<"here are the RS:\n";
+            // show(4);
             return 4;
         }else if (!busy_j[1]) {
-            std::cerr<<"loading the second position of RS jump\n";
+            // std::cerr<<"loading the second position of RS jump\n";
             ins.st=Issue;
             busy_j[1]=true;
             op[5]=ins.op;
@@ -103,11 +103,11 @@ int RS::launch(inst &ins, const int i) {
             if (ins.op=="jal"||ins.op=="jalr") {
                 Write_regs::mark_Reg(ins.rd,i);
             }
-            std::cerr<<"here are the RS:\n";
-            show(5);
+            // std::cerr<<"here are the RS:\n";
+            // show(5);
             return 5;
         }else {
-            std::cerr<<"no spare RS position,launch failed"<<std::endl;
+            // std::cerr<<"no spare RS position,launch failed"<<std::endl;
             return -1;//没有空闲的档位.不做调整
         }
     }

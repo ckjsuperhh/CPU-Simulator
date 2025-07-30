@@ -38,7 +38,7 @@ bool LSB_seq::execute(__int32_t &val) {
                 if (cnt_LSB.begin()->second.rw==read1||cnt_LSB.begin()->second.rw==read2||cnt_LSB.begin()->second.rw==read4) {
                     val=cnt_LSB.begin()->second.m.val;
                 }
-                std::cerr<<"LSB has executed successfully!:"<<cnt_LSB.begin()->second.m.val<<std::endl;
+                // std::cerr<<"LSB has executed successfully!:"<<cnt_LSB.begin()->second.m.val<<std::endl;
                 cnt_LSB.erase(cnt_LSB.begin()->first);
 
                 return true;

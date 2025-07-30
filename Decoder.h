@@ -35,6 +35,7 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
     unsigned int imm_19_12 ;
     __uint16_t imm12_raw;
     int16_t imm16;
+    uint32_t b_imm_raw;
     switch (const auto opcode = ins & 127; opcode) {
         case 0b0110011:
             type = "R";
@@ -54,6 +55,7 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
                             op = "uk";
                             break;
                     }
+                    break;
                 case 0b111:
                     op = "and";
                     break;
@@ -181,38 +183,37 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
                     op = "uk";
             }
             break;
-        case 0b1100011:
+        case 0b1100011:  // B型指令（分支指令）
             type = "B";
-            imm_12 = (ins >> 31) & 1;
-            imm_10_5 = (ins >> 25) & 0x3F;
-            rs2 = (ins >> 20) & 0x1F;
-            rs1 = (ins >> 15) & 0x1F;
-            imm_4_1 = (ins >> 8) & 0xF;
-            imm_11 = (ins >> 7) & 1;
-            imm = (imm_12 << 12) | (imm_11 << 11) | (imm_10_5 << 5) | (imm_4_1 << 1);
+            // 提取B型指令的立即数字段
+            imm_12 = (ins >> 31) & 1;          // 第12位（符号位）
+            imm_10_5 = (ins >> 25) & 0x3F;     // 第10-5位
+            rs2 = (ins >> 20) & 0x1F;          // rs2寄存器
+            rs1 = (ins >> 15) & 0x1F;          // rs1寄存器
+            imm_4_1 = (ins >> 8) & 0xF;        // 第4-1位
+            imm_11 = (ins >> 7) & 1;           // 第11位
+
+            // 组合12位立即数（未左移前）
+             b_imm_raw = (imm_12 << 11) | (imm_10_5 << 5) | (imm_11 << 10) | (imm_4_1 << 1);
+            // 符号位扩展：12位 → 32位
+            if (imm_12) {
+                imm = b_imm_raw | 0xFFFFF000;  // 高20位填充1
+            } else {
+                imm = b_imm_raw;                // 高20位保持0
+            }
+
+            // 解析 funct3 确定具体指令
             switch (const auto funct3 = (ins >> 12) & 7; funct3) {
-                case 0b000:
-                    op = "beq";
-                    break;
-                case 0b101:
-                    op = "bge";
-                    break;
-                case 0b111:
-                    op = "bgeu";
-                    break;
-                case 0b100:
-                    op = "blt";
-                    break;
-                case 0b110:
-                    op = "bltu";
-                    break;
-                case 0b001:
-                    op = "bne";
-                    break;
-                default:
-                    op = "uk";
+                case 0b000: op = "beq"; break;
+                case 0b001: op = "bne"; break;
+                case 0b100: op = "blt"; break;
+                case 0b101: op = "bge"; break;
+                case 0b110: op = "bltu"; break;
+                case 0b111: op = "bgeu"; break;
+                default: op = "uk";
             }
             break;
+
         case 0b1101111:
             type = "J";
             imm_20 = (ins >> 31) & 1;

@@ -35,7 +35,7 @@ bool Ins_Cache::empty() {
 
 // 实现clear()函数
 void Ins_Cache::clear(const int _pc) {
-    std::cerr<<"Countering jump command:clearing Ins_Cache\n";
+    // std::cerr<<"Countering jump command:clearing Ins_Cache\n";
     pc = _pc;//传进来pc，是为了调整内部读取指令的位置
     while (!cache.empty()) {
         cache.pop();
@@ -48,10 +48,11 @@ void Ins_Cache::clear(const int _pc) {
 
 // 实现check()函数
 void Ins_Cache::check() {
+    // std::cerr<<"Remaining "<<cache.size()<<" instructions in the cahce"<<std::endl;
+    // std::cerr<<"State is "<< st<<std::endl;
     if (st == UNABLED|| Reg_status::Busy_pc) {
         return;
     }
-
     if (st == NONE) {
         for (int i = 0; i < 8; ++i, pc += 4) {
             if (Memory::read4(pc) == 0) {
@@ -103,7 +104,7 @@ void Ins_Cache::check() {
         if (cache.size() <= 3) {
             bool hit_last_read = false;
             for (int i = 0; i < 8 - cache.size(); ++i, pc += 4) {
-                if (Memory::read4(pc) != 0) {
+                if (Memory::read4(pc) == 0) {
                     hit_last_read = true;
                     break;
                 }
