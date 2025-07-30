@@ -39,8 +39,8 @@ class ROB {
 public:
     static int head;
     static int tail;
-    static inst ROB_Table[100000];
-    static int code[100000];
+    static inst ROB_Table[1000000];
+    static int code[1000000];
     static bool execute_5();
     static bool execute_1();
     static std::unordered_map<int,ticker_mem> read_mem;
