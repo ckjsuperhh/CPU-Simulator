@@ -41,6 +41,8 @@ public:
     static int tail;
     static inst ROB_Table[5000000];
     static int code[5000000];
+    static int MOD;
+
     static bool execute_5();
     static bool execute_1();
     static std::unordered_map<int,ticker_mem> read_mem;

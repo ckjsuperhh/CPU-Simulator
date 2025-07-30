@@ -19,6 +19,7 @@ int ROB::head = 0;
 int ROB::tail = 1;
 inst ROB::ROB_Table[5000000]{};
 int ROB::code[5000000]{};
+int ROB::MOD=5000000;
 
 // inst构造函数实现
 inst::inst(){}
@@ -160,7 +161,7 @@ bool ROB::execute_5() {
 bool ROB::execute_1() {
 std::cerr<<head<<std::endl;
     bool end=false;
-    int i = head;
+    int i = head%MOD;
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
             std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
             code[i]=RS::launch(ROB_Table[i],i);
