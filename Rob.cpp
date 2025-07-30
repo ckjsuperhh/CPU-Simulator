@@ -17,8 +17,8 @@ std::unordered_set<std::string> add={"auipc","lui","ebreak","ecall","add","sub",
 std::unordered_set<std::string> jump={"beq","bge","bgeu","blt","bltu","bne","jal","jalr",};
 int ROB::head = 0;
 int ROB::tail = 1;
-inst ROB::ROB_Table[1000000]{};
-int ROB::code[1000000]{};
+inst ROB::ROB_Table[5000000]{};
+int ROB::code[5000000]{};
 
 // inst构造函数实现
 inst::inst(){}
