@@ -129,7 +129,7 @@ bool ROB::execute_5() {
             head++;
             end=true;
         } else {
-            if (ROB_Table[i].st == None) {//还没有载入语句
+            if (ROB_Table[i].st == None||ROB_Table[i].st == Commit) {//还没有载入语句
                 if (!Ins_Cache::cache.empty()&&!Reg_status::Busy_pc) {//如果非空就可以载入一条指令，由于是最后在None的位置载入，所以jump指令的处理必定会在载入之前，可以及时封存载入(clear掉),但我还是写上与Busy_pc相关的逻辑吧
                     const auto [fst, snd]=Ins_Cache::read();
                     ROB_Table[i].pc=snd;
@@ -193,7 +193,7 @@ std::cerr<<head<<std::endl;
             }//否则就等待数据全部都准备好了
             //我发现好像这一步就可以清空对应的RS了，除了Load相关的指令以外，下一步都准备提交了
         } else if (ROB_Table[i].st == Exec) {//运行完观察是否要写回Reg和内存,这个时候就要分类是否与内存有关
-            if (i==0) {//特判，因为没有上一条，可以直接运行
+            if (i==0&&head==0) {//特判，因为没有上一条，可以直接运行
                 if (add.contains(ROB_Table[i].op)) {
                     if (ROB_Table[i].ins==0x0ff00513) {
                         std::cout<<std::dec<<(Register::regs[10]&0xFF);
@@ -202,7 +202,6 @@ std::cerr<<head<<std::endl;
                     Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
                     ROB_Table[i].st=Commit;
                     head++;
-
                 }else if (load.contains(ROB_Table[i].op)) {//其他情况以后再进行尝试
                         if (LSB_seq::execute(ROB_Table[i].value)) {//把值读或写处理
                             if (ROB_Table[i].op=="sb"||ROB_Table[i].op=="sh"||ROB_Table[i].op=="sw") {//写完可以直接commit了
@@ -219,7 +218,7 @@ std::cerr<<head<<std::endl;
                 }
                 //我应该修改寄存器，对应的值，这应该就够了
             }else {
-                if (ROB_Table[i-1].st==Commit){//上一条必须是已经Commit过了并且这回合没有其他提交过
+                if (ROB_Table[(i+MOD-1)%MOD].st==Commit){//上一条必须是已经Commit过了并且这回合没有其他提交过
                     if (add.contains(ROB_Table[i].op)) {
                         if (ROB_Table[i].ins==0x0ff00513) {
                             std::cout<<std::dec<<(Register::regs[10]&0xFF);
@@ -256,7 +255,7 @@ std::cerr<<head<<std::endl;
             }//这是啥？
             end=true;
         } else {
-            if (ROB_Table[i].st == None) {//还没有载入语句
+            if (ROB_Table[i].st == None||ROB_Table[i].st == Commit) {//还没有载入语句
                 if (!Ins_Cache::cache.empty()&&!Reg_status::Busy_pc) {//如果非空就可以载入一条指令，由于是最后在None的位置载入，所以jump指令的处理必定会在载入之前，可以及时封存载入(clear掉),但我还是写上与Busy_pc相关的逻辑吧
                     const auto [fst, snd]=Ins_Cache::read();
                     ROB_Table[i].pc=snd;
