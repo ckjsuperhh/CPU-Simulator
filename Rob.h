@@ -39,8 +39,8 @@ class ROB {
 public:
     static int head;
     static int tail;
-    static inst ROB_Table[5000000];
-    static int code[5000000];
+    static inst ROB_Table[500];
+    static int code[500];
     static int MOD;
 
     static bool execute_5();

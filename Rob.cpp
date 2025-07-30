@@ -17,9 +17,9 @@ std::unordered_set<std::string> add={"auipc","lui","ebreak","ecall","add","sub",
 std::unordered_set<std::string> jump={"beq","bge","bgeu","blt","bltu","bne","jal","jalr",};
 int ROB::head = 0;
 int ROB::tail = 1;
-inst ROB::ROB_Table[5000000]{};
-int ROB::code[5000000]{};
-int ROB::MOD=5000000;
+inst ROB::ROB_Table[500]{};
+int ROB::code[500]{};
+int ROB::MOD=500;
 
 // inst构造函数实现
 inst::inst(){}
@@ -32,7 +32,8 @@ bool ROB::execute_5() {
     bool end_of_ALU=false;
     bool end_of_Commit=false;
     bool end_of_LSB=false;
-    for (int i = head; i <= tail; i++) {
+    for (int t = head; t <= tail; t++) {
+        int i=t%MOD;
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
             std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
             code[i]=RS::launch(ROB_Table[i],i);
