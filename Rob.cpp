@@ -289,7 +289,7 @@ bool ROB::execute_1() {
                     //我也不知道应该怎么办
                 }else {
                     // std::cerr<<"Decoding:"<<"(decoded info)\n";
-                    ins.show();
+                    // ins.show();
                     const int pc=ROB_Table[i].pc;//来个暗度陈仓
                     const __uint32_t instruction=ROB_Table[i].ins;
                     ROB_Table[i]=inst{ins};//Decode完成之后,我需要准备开始发射了
