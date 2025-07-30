@@ -5,6 +5,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 #include <bitset>
+#include <format>
 #include <iostream>
 #include <map>
 #include <bits/types.h>
@@ -26,14 +27,14 @@ public:
         if (!mem.contains(from)||!mem.contains(from+1)||!mem.contains(from+2)||!mem.contains(from+3)) {
             return 0;
         }
-        return mem[from]<<24|mem[from+1]<<16|mem[from+2]<<8|mem[from+3];
+        return mem[from+3]<<24|mem[from+2]<<16|mem[from+1]<<8|mem[from];
     }
 
     static __uint16_t read2(const __uint32_t from) {
         if (!mem.contains(from)||!mem.contains(from+1)) {
             return 0;
         }
-        return mem[from]<<8|mem[from+1];
+        return mem[from+1]<<8|mem[from];
     }
 
     static __uint8_t read1(const __uint32_t from) {
@@ -48,11 +49,11 @@ public:
         for (int i = 0; i < 4; ++i) {
             const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
             bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
-        if (!mem.contains(to+i)) {
-                mem.insert({to+i,bytes[i]});
-            }else{mem[to+i]=bytes[i];}
+        if (!mem.contains(to+3-i)) {
+                mem.insert({to+3-i,bytes[i]});
+            }else{mem[to+3-i]=bytes[i];}
         }
-    }
+    }//比如0x00000008,得到08 00 00 00
 
     static void write2(const __uint32_t to,char ins[]) {
         unsigned char bytes[2];
@@ -61,9 +62,9 @@ public:
             const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
             // 转换为字节并存储
             bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
-            if (!mem.contains(to+i)) {
-                mem.insert({to+i,bytes[i]});
-            }else{mem[to+i]=bytes[i];}
+            if (!mem.contains(to+1-i)) {
+                mem.insert({to+1-i,bytes[i]});
+            }else{mem[to+1-i]=bytes[i];}
         }
     }
 
@@ -148,7 +149,7 @@ public:
         if (++ticker!=3) {
             return false;
         }
-        Memory::write4(pc,std::to_string(val).data());
+        Memory::write4(pc,std::format("{:08x}", val).data());
         return true;
     }
 
@@ -156,7 +157,7 @@ public:
         if (++ticker!=3) {
             return false;
         }
-        Memory::write2(pc,std::to_string(static_cast<__int16_t>(val)).data());
+        Memory::write2(pc,std::format("{:04x}", val).data());
         return true;
     }
 
@@ -164,7 +165,7 @@ public:
         if (++ticker!=3) {
             return false;
         }
-        Memory::write1(pc,std::to_string(static_cast<__int8_t>(val)).data());
+        Memory::write1(pc,std::format("{:02x}", val).data());
         return true;
     }
 

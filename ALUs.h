@@ -74,48 +74,58 @@ public:
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "bge") {
             if (ins.rs1_val>=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "bgeu") {
             if (ins.rs1_val>=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "blt") {
             if (ins.rs1_val<ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "bltu") {
             if (ins.rs1_val<ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "bne") {
             if (ins.rs1_val!=ins.rs2_val) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
-                Ins_Cache::clear(Register::pc);
+                Ins_Cache::clear(Register::pc);//clear顺带已经修改过pc的值了
             }
+            Reg_status::Busy_pc=false;
         } else if (ins.op == "jal") {
             ins.value=ins.pc+4;
             Register::pc=ins.pc+ins.imm;
+            Reg_status::Busy_pc=false;
+            Ins_Cache::modify(Register::pc);
         } else if (ins.op == "jalr") {
             ins.value=ins.pc+4;
             Register::pc=ins.rs1_val+ins.imm;
+            Reg_status::Busy_pc=false;
+            Ins_Cache::modify(Register::pc);//把Ins_Cache的指针修改成对应的跳转值
         } else if (ins.op == "auipc") {
+            ins.imm<<=12;
             ins.value=ins.imm+ins.pc;
-            ins.imm<<=12;
         } else if (ins.op == "lui") {
-            ins.value=ins.imm;
             ins.imm<<=12;
+            ins.value=ins.imm;
         } else if (ins.op == "ebreak") {
             std::cout<<"Asking the debugger to do something"<<std::endl;
         } else if (ins.op == "ecall") {

@@ -38,19 +38,20 @@ bool LSB_seq::execute(__int32_t &val) {
                 if (cnt_LSB.begin()->second.rw==read1||cnt_LSB.begin()->second.rw==read2||cnt_LSB.begin()->second.rw==read4) {
                     val=cnt_LSB.begin()->second.m.val;
                 }
+                std::cerr<<"LSB has executed successfully!:"<<cnt_LSB.begin()->second.m.val<<std::endl;
                 cnt_LSB.erase(cnt_LSB.begin()->first);
+
                 return true;
             }
             return false;
         }
-void LSB_seq::modify(int i,__uint32_t pc,__int32_t val) {//当我需要对其进行修改的时候(需要明确修改什么)，准备好修改pc,ready,val(如果需要)
+void LSB_seq::modify(const int i, const __uint32_t pc, const __int32_t val) {//当我需要对其进行修改的时候(需要明确修改什么)，准备好修改pc,ready,val(如果需要)
             if (cnt_LSB.contains(i)) {
                 cnt_LSB[i].ready=true;
                 cnt_LSB[i].m=ticker_mem{pc,val};
             }else {
                  throw;
             }
-
         }
 
 int LSB_seq::add(const inst& ins) {

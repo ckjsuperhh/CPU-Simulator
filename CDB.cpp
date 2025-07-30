@@ -45,6 +45,7 @@ void CDB::add(int i, int data) {
 
 // 实现broadcast函数
 void CDB::broadcast(int i, int value) {
+    std::cerr<<"Broadcasting...modifying:(num)"<<std::dec<<i<<"&(value)"<<std::hex<<value<<std::endl;
     for (int j = 0; j < 2; j++) {
         if (RS::busy_l[j] == 1) {
             if (RS::Vj[j] == -1 && RS::Qj[j] == i) {

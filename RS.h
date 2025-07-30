@@ -31,6 +31,7 @@ public:
     static void clear(int i);
 
     static void show(int i);
+    static void show_everything();
 
     static std::string pos_show(Posi p);
 };

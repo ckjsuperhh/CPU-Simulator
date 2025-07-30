@@ -4,8 +4,23 @@
 
 #ifndef DECODER_H
 #define DECODER_H
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
+
+// 手动判断12位立即数的最高位并完成符号扩展
+inline int32_t sign_extend_12to32(const uint16_t imm12) {
+    int32_t result;
+    // 12位立即数的最高位是第11位（值为0x800）
+    if (imm12 & 0x800) {
+        // 最高位为1（负数）：高20位补1
+        result = imm12 | 0xFFFFF000;  // 32位中低12位保留原值，高20位填充1
+    } else {
+        // 最高位为0（正数）：高20位补0
+        result = imm12;  // 直接保留低12位，高20位自然为0
+    }
+    return result;
+}
 
 inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, int &rs2, int &imm, std::string& type) {
     unsigned int imm_11_5;
@@ -18,6 +33,8 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
     unsigned int imm_10_1 ;
     unsigned int imm_11_ ;
     unsigned int imm_19_12 ;
+    __uint16_t imm12_raw;
+    int16_t imm16;
     switch (const auto opcode = ins & 127; opcode) {
         case 0b0110011:
             type = "R";
@@ -72,7 +89,7 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
             break;
         case 0b0010011:
             type = "I";
-            imm = (ins >> 20) & 0xFFF;
+            imm = sign_extend_12to32((ins >> 20) & 0xFFF);
             rs1 = (ins >> 15) & 0x1F;
             rd = (ins >> 7) & 0x1F;
             switch (const auto funct3 = (ins >> 12) & 7; funct3) {
@@ -94,9 +111,10 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
                     imm = (ins >> 20) & 0x1F;
                     break;
                 case 0b101:
+                    type = "I*";
+                    imm = (ins >> 20) & 0x1F;
                     switch (const auto funct7 = (ins >> 25) & 127; funct7) {
-                            type = "I*";
-                            imm = (ins >> 20) & 0x1F;
+
                         case 0b0000000:
                             op = "srli";
                             break;
@@ -203,6 +221,11 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
             imm_19_12 = (ins >> 12) & 0xFF;
             rd = (ins >> 7) & 0x1F;
             imm = (imm_20 << 20) | (imm_19_12 << 12) | (imm_11_ << 11) | (imm_10_1 << 1);
+            // 符号位扩展：21位 → 32位
+            // 若第20位为1（负数），则填充高11位为1
+            if (imm_20) {
+                imm |= 0xFFE00000;  // 高11位（31~21位）置1
+            }
             op = "jal";
             break;
         case 0b1100111:

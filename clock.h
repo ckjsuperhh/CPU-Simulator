@@ -12,6 +12,17 @@ class clock {
 public:
     static int ticker;
     static bool execute_once() {
+        if (ticker==87||ticker==70) {
+            Memory::show_mem();
+        }
+        std::cerr<<"ra="<<std::hex<<Register::regs[1]<<std::endl;
+        std::cerr<<"sp="<<std::hex<<Register::regs[2]<<std::endl;
+        std::cerr<<"a0="<<std::dec<<Register::regs[10]<<std::endl;
+        std::cerr<<"a4="<<std::dec<<Register::regs[14]<<std::endl;
+        std::cerr<<"a5="<<std::dec<<Register::regs[15]<<std::endl;
+        // RS::show_everything();
+        // Register::show_reg();
+        Register::set_zero();
         CDB::execute();
         ticker++;
         Ins_Cache::check();//每一个时钟都要检查一下指令缓存有没有做

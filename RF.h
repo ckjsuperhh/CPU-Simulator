@@ -23,10 +23,16 @@ public:
     static std::string reg_num[32];
     Register();
     static void initial_set();
+
+    static void set_zero();
+
     static std::string get_name(int reg);
     static uint32_t read(int reg);
     static void write(int reg, uint32_t num);
     static int read_pc();
+
+    static void show_reg();
+
     static int pc;
 };
 
@@ -46,6 +52,8 @@ public:
 class Write_regs {
 public:
     static void execute(int i, int Reg, int value);
+
+    static void mark_Reg(int Reg, int i);
 };
 
 #endif //RF_H

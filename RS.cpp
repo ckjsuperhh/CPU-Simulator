@@ -28,6 +28,9 @@ int RS::launch(inst &ins, const int i) {
             op[0]=ins.op;
             Dest[0]=i;
             Read_regs::execute(ins,Vj[0],Vk[0],Qj[0],Qk[0],pj[0],pk[0]);//读取Reg的值,并且修改RS表
+            if (ins.op=="lb"||ins.op=="lbu"||ins.op=="lh"||ins.op=="lhu"||ins.op=="lw") {
+                Write_regs::mark_Reg(ins.rd,i);
+            }//Launch的同时我也应该把RF修改掉
             std::cerr<<"here are the RS:\n";
             show(0);
             return 0;
@@ -38,6 +41,9 @@ int RS::launch(inst &ins, const int i) {
             op[1]=ins.op;
             Dest[1]=i;
             Read_regs::execute(ins,Vj[1],Vk[1],Qj[1],Qk[1],pj[1],pk[1]);
+            if (ins.op=="lb"||ins.op=="lbu"||ins.op=="lh"||ins.op=="lhu"||ins.op=="lw") {
+                Write_regs::mark_Reg(ins.rd,i);
+            }
             std::cerr<<"here are the RS:\n";
             show(1);
             return 1;
@@ -53,6 +59,7 @@ int RS::launch(inst &ins, const int i) {
             op[2]=ins.op;
             Dest[2]=i;
             Read_regs::execute(ins,Vj[2],Vk[2],Qj[2],Qk[2],pj[2],pk[2]);//读取Reg的值,并且修改RS表
+            Write_regs::mark_Reg(ins.rd,i);
             std::cerr<<"here are the RS:\n";
             show(2);
             return 2;
@@ -63,6 +70,7 @@ int RS::launch(inst &ins, const int i) {
             op[3]=ins.op;
             Dest[3]=i;
             Read_regs::execute(ins,Vj[3],Vk[3],Qj[3],Qk[3],pj[3],pk[3]);
+            Write_regs::mark_Reg(ins.rd,i);
             std::cerr<<"here are the RS:\n";
             show(3);
             return 3;
@@ -78,6 +86,10 @@ int RS::launch(inst &ins, const int i) {
             op[4]=ins.op;
             Dest[4]=i;
             Read_regs::execute(ins,Vj[4],Vk[4],Qj[4],Qk[4],pj[4],pk[4]);//读取Reg的值,并且修改RS表
+            if (ins.op=="jal"||ins.op=="jalr") {
+                Write_regs::mark_Reg(ins.rd,i);
+            }
+
             std::cerr<<"here are the RS:\n";
             show(4);
             return 4;
@@ -88,6 +100,9 @@ int RS::launch(inst &ins, const int i) {
             op[5]=ins.op;
             Dest[5]=i;
             Read_regs::execute(ins,Vj[5],Vk[5],Qj[5],Qk[5],pj[5],pk[5]);
+            if (ins.op=="jal"||ins.op=="jalr") {
+                Write_regs::mark_Reg(ins.rd,i);
+            }
             std::cerr<<"here are the RS:\n";
             show(5);
             return 5;
@@ -115,7 +130,7 @@ void RS::clear(const int i) {//把第i行对应指令删除
     pj[i]=pk[i]=Posi::none;
 }
 
-void RS::show(int i) {
+void RS::show(const int i) {
 if (i==0||i==1) {
     std::cerr<<"pos:(load)"<<i<<"　busy:"<<busy_l[i]<<" op:"<<op[i]<<" Vj:"<<Vj[i]<<" Vk:"<<Vk[i]<<" Qj:"<<Qj[i]<<" Qk:"<<Qk[i]<<" pj:"<<pos_show(pj[i])<<" pk:"<<pos_show(pk[i])<<std::endl;
 }else if (i==2||i==3) {
@@ -124,6 +139,12 @@ if (i==0||i==1) {
     std::cerr<<"pos:(jump)"<<i<<"　busy:"<<busy_j[i-4]<<" op:"<<op[i]<<" Vj:"<<Vj[i]<<" Vk:"<<Vk[i]<<" Qj:"<<Qj[i]<<" Qk:"<<Qk[i]<<" pj:"<<pos_show(pj[i])<<" pk:"<<pos_show(pk[i])<<std::endl;
 }
     
+}
+
+void RS::show_everything() {
+    for (int i=0;i<6;i++) {
+        show(i);
+    }
 }
 
 std::string RS::pos_show(Posi p) {

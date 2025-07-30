@@ -27,8 +27,9 @@ public:
 
     static std::pair<__uint32_t,int> read();//读取最近的一条指令
     static bool empty();//规范用法，读取之前先要判空
-    static void clear(const int _pc);//涉及清除指令，应该都是jump要更改pc的时候，那么就传入pc允许修改
+    static void clear(int _pc);//涉及清除指令，应该都是jump要更改pc的时候，那么就传入pc允许修改
     static void check();
+    static void modify(__uint32_t pc);
 };
 
 #endif //INS_CACHE_H

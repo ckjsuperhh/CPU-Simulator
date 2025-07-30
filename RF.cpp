@@ -22,6 +22,10 @@ Register::Register() { initial_set(); }
 void Register::initial_set() {
     for (auto &reg : regs) reg = 0;
 }
+
+void Register::set_zero() {
+    regs[0]=0;
+}
 std::string Register::get_name(int reg) {
     if (reg >= 32) return "uk";
     return reg_num[reg];
@@ -95,6 +99,7 @@ void Write_regs::execute(const int i, const int Reg, const int value) {//对应R
             Reg_status::Busy[Reg]=false;//不忙了
             Reg_status::Reorder[Reg]=-1;
             Register::write(Reg,value);//修改寄存器的值
+            std::cerr<<"Writing register "<<Register::get_name(Reg)<<" with "<<std::hex<<value<<std::endl;
         }
 };
 int Register::read_pc() {//如果失败就返回-1,不然就是正常值
@@ -103,4 +108,19 @@ int Register::read_pc() {//如果失败就返回-1,不然就是正常值
         }
         return pc;
     }
+void Write_regs::mark_Reg(int Reg,int i) {
+    Reg_status::Reorder[Reg]=i;
+    Reg_status::Busy[Reg]=true;
+}
 
+void Register::show_reg() {
+    std::cerr<<"        ";
+    for (int i=0;i<32;i++) {
+        std::cerr<<Register::get_name(i)<<" ";
+    }
+    std::cerr<<std::endl<<"Reorder:";
+    for (int i=0;i<32;i++) {
+        std::cerr<<Reg_status::get_busy(i)<<"  ";
+    }
+    std::cerr<<std::endl;
+}

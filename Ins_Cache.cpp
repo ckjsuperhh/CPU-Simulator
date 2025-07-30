@@ -13,7 +13,7 @@
 
 // 初始化静态成员变量
 Status Ins_Cache::st = NONE;
-int Ins_Cache::pc = 0;
+int Ins_Cache::pc = 0;//这个值是类内维护的一个值，外部的pc，记录当下跑到哪个位置，对其刚刚decode进来的指令，而这个pc则是记录当下读到哪个位置
 std::queue<std::pair<ticker_mem, int>> Ins_Cache::cache_mem;
 std::queue<std::pair<__uint32_t, int>> Ins_Cache::cache;
 __uint32_t Ins_Cache::Binary_Little_Endian(__uint32_t ins) {
@@ -35,7 +35,8 @@ bool Ins_Cache::empty() {
 
 // 实现clear()函数
 void Ins_Cache::clear(const int _pc) {
-    pc = _pc;
+    std::cerr<<"Countering jump command:clearing Ins_Cache\n";
+    pc = _pc;//传进来pc，是为了调整内部读取指令的位置
     while (!cache.empty()) {
         cache.pop();
     }
@@ -47,7 +48,7 @@ void Ins_Cache::clear(const int _pc) {
 
 // 实现check()函数
 void Ins_Cache::check() {
-    if (st == UNABLED) {
+    if (st == UNABLED|| Reg_status::Busy_pc) {
         return;
     }
 
@@ -115,4 +116,7 @@ void Ins_Cache::check() {
             }
         }
     }
+}
+void Ins_Cache::modify(const __uint32_t pc) {
+    Ins_Cache::pc=pc;
 }
