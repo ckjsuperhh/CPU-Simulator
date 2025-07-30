@@ -15,17 +15,17 @@ public:
         // if (ticker==763) {
         //     Memory::show_mem();
         // }
-        std::cerr<<"ra="<<std::hex<<Register::regs[1]<<std::endl;
-        std::cerr<<"sp="<<std::hex<<Register::regs[2]<<std::endl;
+        // std::cerr<<"ra="<<std::hex<<Register::regs[1]<<std::endl;
+        // std::cerr<<"sp="<<std::hex<<Register::regs[2]<<std::endl;
         // std::cerr<<"s0="<<std::hex<<Register::regs[8]<<std::endl;
         // std::cerr<<"s1="<<std::hex<<Register::regs[9]<<std::endl;
-        std::cerr<<"a0="<<std::dec<<Register::regs[10]<<std::endl;
-        std::cerr<<"a1="<<std::dec<<Register::regs[11]<<std::endl;
-        std::cerr<<"a2="<<std::dec<<Register::regs[12]<<std::endl;
-        std::cerr<<"a3="<<std::dec<<Register::regs[13]<<std::endl;
+        // std::cerr<<"a0="<<std::dec<<Register::regs[10]<<std::endl;
+        // std::cerr<<"a1="<<std::dec<<Register::regs[11]<<std::endl;
+        // std::cerr<<"a2="<<std::dec<<Register::regs[12]<<std::endl;
+        // std::cerr<<"a3="<<std::dec<<Register::regs[13]<<std::endl;
         // std::cerr<<"a4="<<std::hex<<Register::regs[14]<<std::endl;
         // std::cerr<<"a5="<<std::hex<<Register::regs[15]<<std::endl;
-        std::cerr<<"pc="<<std::hex<<Register::pc<<std::endl;
+        // std::cerr<<"pc="<<std::hex<<Register::pc<<std::endl;
         // RS::show_everything();
         // Register::show_reg();
         Register::set_zero();
