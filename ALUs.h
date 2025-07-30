@@ -33,7 +33,7 @@ public:
         } else if (ins.op == "slt") {
             ins.value = (ins.rs1_val < ins.rs2_val) ? 1 : 0;
         } else if (ins.op == "sltu") {
-            ins.value = (ins.rs1_val < ins.rs2_val) ? 1 : 0; //这边也有unsigned和signed,查一下!
+            ins.value = (static_cast<uint32_t>(ins.rs1_val) < static_cast<uint32_t>(ins.rs2_val)) ? 1 : 0;
         } else if (ins.op == "addi") {
             ins.value = ins.rs1_val+ins.imm;
         } else if (ins.op == "andi") {
@@ -51,7 +51,7 @@ public:
         } else if (ins.op == "slti") {
             ins.value = (ins.rs1_val < ins.imm) ? 1 : 0;
         } else if (ins.op == "sltiu") {
-            ins.value = (ins.rs1_val < ins.imm) ? 1 : 0; //这俩也要查一下!
+            ins.value = (static_cast<uint32_t>(ins.rs1_val) < static_cast<uint32_t>(ins.imm)) ? 1 : 0; //这俩也要查一下!
         } else if (ins.op == "lb") {//往下许多是用来计算地址
             ins.value = ins.rs1_val+ins.imm;
         } else if (ins.op == "lbu") {
@@ -83,7 +83,7 @@ public:
             }
             Reg_status::Busy_pc=false;
         } else if (ins.op == "bgeu") {
-            if (ins.rs1_val>=ins.rs2_val) {
+            if (static_cast<uint32_t>(ins.rs1_val)>=static_cast<uint32_t>(ins.rs2_val)) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);
@@ -97,7 +97,7 @@ public:
             }
             Reg_status::Busy_pc=false;
         } else if (ins.op == "bltu") {
-            if (ins.rs1_val<ins.rs2_val) {
+            if (static_cast<uint32_t>(ins.rs1_val)<static_cast<uint32_t>(ins.rs2_val)) {
                 ins.value=ins.pc+ins.imm;
                 Register::pc=ins.value;
                 Ins_Cache::clear(Register::pc);

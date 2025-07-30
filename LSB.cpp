@@ -5,9 +5,10 @@
 #include <map>
 #include "LSB.h"
 
+#include "Ins_Cache.h"
 
 
-    bool LSB::execute() {//我觉得在内部封装可能是一个更可行的事情
+bool LSB::execute() {//我觉得在内部封装可能是一个更可行的事情
         if (!ready) {
             return false;
         }
@@ -48,7 +49,7 @@ bool LSB_seq::execute(__int32_t &val) {
 void LSB_seq::modify(const int i, const __uint32_t pc, const __int32_t val) {//当我需要对其进行修改的时候(需要明确修改什么)，准备好修改pc,ready,val(如果需要)
             if (cnt_LSB.contains(i)) {
                 cnt_LSB[i].ready=true;
-                cnt_LSB[i].m=ticker_mem{pc,val};
+                cnt_LSB[i].m=ticker_mem{pc,Ins_Cache::Binary_Little_Endian(val)};
             }else {
                  throw;
             }

@@ -33,7 +33,7 @@ bool ROB::execute_5() {
     bool end_of_LSB=false;
     for (int i = head; i <= tail; i++) {
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
-            // std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
+            std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
             code[i]=RS::launch(ROB_Table[i],i);
             end=true;
         } else if (ROB_Table[i].st == Issue) {
@@ -158,18 +158,18 @@ bool ROB::execute_5() {
 }
 
 bool ROB::execute_1() {
-// std::cerr<<head<<std::endl;
+std::cerr<<head<<std::endl;
     bool end=false;
     int i = head;
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
-            // std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
+            std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
             code[i]=RS::launch(ROB_Table[i],i);
             end=true;
         } else if (ROB_Table[i].st == Issue) {
             if (RS::Qj[code[i]]==-1&&RS::Qk[code[i]]==-1) {//数据已经做好准备,可以ALUs伺候
                 calculate::cal(ROB_Table[i]);//答案数据准备好了，注意这边似乎还没有处理pc相关的任务，后续再说吧
                 ROB_Table[i].st=Exec;
-                 // std::cerr<<"ALU calculating...Consequences:"<<ROB_Table[i].value<<std::endl;
+                 std::cerr<<"ALU calculating...Consequences:"<<ROB_Table[i].value<<std::endl;
                 CDB::add(i,ROB_Table[i].value);//加入队列中准备进行一个数据的广播(后面逻辑要改，变成循环队列后不应该用i来表示，而是map内置一个counter，这个i只是代表自己在第几行)
                 end=true;
                 if (!load.contains(ROB_Table[i].op)) {
@@ -263,7 +263,7 @@ bool ROB::execute_1() {
                     tail++;
                     Register::pc=ROB_Table[i].pc;//当且仅当载入的时候正常修改pc,其他可能会修改pc的情况仅仅存在于ALU
                     end=true;
-                    // std::cerr<<"Loading instruction from Cache:(pc)"<<std::hex<<snd<<"  (ins)"<< std::setw(8)<< std::setfill('0')<<fst<<std::endl;
+                    std::cerr<<"Loading instruction from Cache:(pc)"<<std::hex<<snd<<"  (ins)"<< std::setw(8)<< std::setfill('0')<<fst<<std::endl;
                 }else if (!Ins_Cache::cache_mem.empty()||Ins_Cache::st==WAITING||Ins_Cache::st==LAST_READ) {//如果其他指令都不再运行了，但是还有指令没有导入，但是指令队列空了，那我应该还要特判一下
                     end=true;//如果等待读入的站还没空,或者还处在等待状态中,我就不能随意结束程序
                 }
@@ -271,7 +271,7 @@ bool ROB::execute_1() {
                 if (instructions ins(ROB_Table[i].ins,ROB_Table[i].pc); ins.op=="uk") {
                     //我也不知道应该怎么办
                 }else {
-                    // std::cerr<<"Decoding:"<<"(decoded info)\n";
+                    std::cerr<<"Decoding:"<<"(decoded info)\n";
                     ins.show();
                     const int pc=ROB_Table[i].pc;//来个暗度陈仓
                     const __uint32_t instruction=ROB_Table[i].ins;

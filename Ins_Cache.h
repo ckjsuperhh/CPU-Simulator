@@ -23,7 +23,7 @@ public:
     static int pc;
     static std::queue<std::pair<ticker_mem,int>> cache_mem;
     static std::queue<std::pair<__uint32_t,int>> cache;//读出来的时候大不了用这个queue是否为空来判断能否读取
-    static __uint32_t Binary_Little_Endian(__uint32_t ins);
+    static int Binary_Little_Endian(__uint32_t ins);
 
     static std::pair<__uint32_t,int> read();//读取最近的一条指令
     static bool empty();//规范用法，读取之前先要判空

@@ -16,7 +16,8 @@ Status Ins_Cache::st = NONE;
 int Ins_Cache::pc = 0;//这个值是类内维护的一个值，外部的pc，记录当下跑到哪个位置，对其刚刚decode进来的指令，而这个pc则是记录当下读到哪个位置
 std::queue<std::pair<ticker_mem, int>> Ins_Cache::cache_mem;
 std::queue<std::pair<__uint32_t, int>> Ins_Cache::cache;
-__uint32_t Ins_Cache::Binary_Little_Endian(__uint32_t ins) {
+
+int Ins_Cache::Binary_Little_Endian(__uint32_t ins) {
     __uint32_t a(ins&0xFF),b((ins>>8)&0xff),c((ins>>16)&0xff),d((ins>>24)&0xff);
     return a<<24|b<<16|c<<8|d;
 }
@@ -74,7 +75,7 @@ void Ins_Cache::check() {
         }
         if (ok) {
             for (auto &[fst, snd] : tmp) {
-                cache.emplace(Binary_Little_Endian(fst.val), snd);
+                cache.emplace(fst.val, snd);
             }
             st = FINISHED;
         } else {
@@ -92,7 +93,7 @@ void Ins_Cache::check() {
         }
         if (ok) {
             for (auto &[fst, snd] : tmp) {
-                cache.emplace(Binary_Little_Endian(fst.val), snd);
+                cache.emplace(fst.val, snd);
             }
             st = UNABLED;
         } else {

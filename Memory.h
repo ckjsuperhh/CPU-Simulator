@@ -49,11 +49,11 @@ public:
         for (int i = 0; i < 4; ++i) {
             const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
             bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
-        if (!mem.contains(to+3-i)) {
-                mem.insert({to+3-i,bytes[i]});
-            }else{mem[to+3-i]=bytes[i];}
+        if (!mem.contains(to+i)) {
+                mem.insert({to+i,bytes[i]});
+            }else{mem[to+i]=bytes[i];}
         }
-    }//比如0x00000008,得到08 00 00 00
+    }//比如0x00000008,得到00 00 00 08就顺序写进去
 
     static void write2(const __uint32_t to,char ins[]) {
         unsigned char bytes[2];
@@ -62,9 +62,9 @@ public:
             const char tmp[3] = { ins[i*2], ins[i*2+1], 0 };
             // 转换为字节并存储
             bytes[i] = static_cast<unsigned char>(strtol(tmp, nullptr, 16));
-            if (!mem.contains(to+1-i)) {
-                mem.insert({to+1-i,bytes[i]});
-            }else{mem[to+1-i]=bytes[i];}
+            if (!mem.contains(to+i)) {
+                mem.insert({to+i,bytes[i]});
+            }else{mem[to+i]=bytes[i];}
         }
     }
 
