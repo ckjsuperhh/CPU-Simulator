@@ -294,10 +294,10 @@ bool ROB::execute_1() {
                     const auto [fst, snd]=Ins_Cache::read();
                     ROB_Table[i].pc=snd;
                     ROB_Table[i].ins=fst;
-                    if (ROB_Table[i].ins==0x00f54533) {
-                        std::cout<<p<<":"<<Register::regs[10]<<std::endl;
-                        ++p;
-                    }
+                    // if (ROB_Table[i].ins==0x00f54533) {
+                    //     std::cout<<p<<":"<<Register::regs[10]<<std::endl;
+                    //     ++p;
+                    // }
                     // if (ROB_Table[i].ins==0xfe079ae3) {
                     //     std::cout<<q<<std::endl;
                     //     ++q;
