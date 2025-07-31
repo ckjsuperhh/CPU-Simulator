@@ -91,8 +91,8 @@ inline void decoder(const __uint32_t ins, std::string &op, int &rd, int &rs1, in
             break;
         case 0b0010011:
             type = "I";
-            imm = (ins >> 20) & 0xFFF;
-            //imm = sign_extend_12to32((ins >> 20) & 0xFFF);
+            //imm = (ins >> 20) & 0xFFF;
+            imm = sign_extend_12to32((ins >> 20) & 0xFFF);
             rs1 = (ins >> 15) & 0x1F;
             rd = (ins >> 7) & 0x1F;
             switch (const auto funct3 = (ins >> 12) & 7; funct3) {
