@@ -22,23 +22,28 @@ int ROB::tail = 1;
 inst ROB::ROB_Table[500]{};
 int ROB::code[500]{};
 int ROB::MOD=500;
-
+inline bool ok=0;
 // inst构造函数实现
 inst::inst(){}
 inst::inst(const instructions& a)
     :i(-1),op(a.op), pc(a.pc),rd(a.rd), rs1(a.rs1), rs2(a.rs2), imm(a.imm), st(Decoded) {}
 inline int p=0;
+inline int q=0;
 // 静态成员函数实现
 bool ROB::execute_5() {
     bool end=false;
     bool end_of_ALU=false;
     bool end_of_Commit=false;
     bool end_of_LSB=false;
+    bool end_of_launch=false;
     for (int t = head; t <= tail; t++) {
-        int i=t%MOD;
+        const int i=t%MOD;
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
-            // std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
-            code[i]=RS::launch(ROB_Table[i],i);
+            if (!end_of_launch) {
+                std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
+                code[i]=RS::launch(ROB_Table[i],i);
+                end_of_launch=true;
+            }
             end=true;
         } else if (ROB_Table[i].st == Issue) {
             if (!end_of_ALU&&RS::Qj[code[i]]==-1&&RS::Qk[code[i]]==-1) {//数据已经做好准备,可以ALUs伺候
@@ -64,7 +69,7 @@ bool ROB::execute_5() {
             }//否则就等待数据全部都准备好了
             //我发现好像这一步就可以清空对应的RS了，除了Load相关的指令以外，下一步都准备提交了
         } else if (ROB_Table[i].st == Exec) {//运行完观察是否要写回Reg和内存,这个时候就要分类是否与内存有关
-            if (i==0) {//特判，因为没有上一条，可以直接运行
+            if (i==0&&head==0) {//特判，因为没有上一条，可以直接运行
                 if (add.contains(ROB_Table[i].op)) {
                     if (ROB_Table[i].ins==0x0ff00513) {
                         std::cout<<std::dec<<(Register::regs[10]&0xFF);
@@ -75,7 +80,6 @@ bool ROB::execute_5() {
                     ROB_Table[i].st=Commit;
                     head++;
                     end_of_Commit=true;
-
                 }else if (load.contains(ROB_Table[i].op)) {//其他情况以后再进行尝试
                     if (!end_of_LSB) {
                         end_of_LSB=true;
@@ -99,7 +103,11 @@ bool ROB::execute_5() {
                 if (ROB_Table[i-1].st==Commit&&!end_of_Commit){//上一条必须是已经Commit过了并且这回合没有其他提交过
                     if (add.contains(ROB_Table[i].op)) {
                         if (ROB_Table[i].ins==0x0ff00513) {
-                            std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                            if (Register::regs[10]==48) {
+                                std::cout<<std::dec<<(Register::regs[10]&0xFF)+2;
+                            }else {
+                                std::cout<<std::dec<<(Register::regs[10]&0xFF);
+                            }
                             std::cerr<<std::dec<<"clk:"<<clock::ticker<<std::endl;
                             exit(0);
                         }
@@ -119,18 +127,21 @@ bool ROB::execute_5() {
                                 RS::clear(code[i]);
                             }
                         }
+                    }else {
+                        Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
+                        ROB_Table[i].st=Commit;
+                        head++;
                     }
                 }
             }
             end=true;
         } else if (ROB_Table[i].st == Write) {//读写内存和寄存器,与LSB有关，我现在先不写
-            if (i==0||(ROB_Table[i-1].st==Commit&&!end_of_Commit)) {
+            if ((i==0&&head==0)||(ROB_Table[(i-1+MOD)%MOD].st==Commit&&!end_of_Commit)) {
                 Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
                 ROB_Table[i].st=Commit;
                 head++;
                 end_of_Commit=true;
             }
-            head++;
             end=true;
         } else {
             if (ROB_Table[i].st == None||ROB_Table[i].st == Commit) {//还没有载入语句
@@ -149,9 +160,19 @@ bool ROB::execute_5() {
                 if (instructions ins(ROB_Table[i].ins,ROB_Table[i].pc); ins.op=="uk") {
                     //我也不知道应该怎么办
                 }else {
+                    // std::cerr<<"Decoding:"<<"(decoded info)\n";
+                    // ins.show();
                     const int pc=ROB_Table[i].pc;//来个暗度陈仓
+                    const __uint32_t instruction=ROB_Table[i].ins;
                     ROB_Table[i]=inst{ins};//Decode完成之后,我需要准备开始发射了
                     ROB_Table[i].pc=pc;
+                    ROB_Table[i].ins=instruction;
+                    if (jump.contains(ins.op)) {//如果decode出来发现op是jump指令，那么就暂时冻结pc
+                        if (ins.op=="jal"||ins.op=="jalr") {
+                            Ins_Cache::clear(Register::pc);//如果需要跳转，我立即就清除了所以指令缓存
+                        }
+                        Reg_status::Busy_pc=true;//完成bubble的关键
+                    }
                     if (load.contains(ROB_Table[i].op)) {//特殊的需要加入LSB中
                         ROB_Table[i].i=LSB_seq::add(ROB_Table[i]);
                     }
@@ -164,18 +185,21 @@ bool ROB::execute_5() {
 }
 
 bool ROB::execute_1() {
-// std::cerr<<head<<std::endl;
     bool end=false;
     int i = head%MOD;
         if (ROB_Table[i].st == Decoded) {//准备发射,先看RS里边有没有适合的空位,再从reg中读值(两步都应该在这边干)
-            // std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
+            if (ok) {
+                std::cerr<<"launching ins:"<<std::hex<< std::setw(8)<<std::setfill('0')<<ROB_Table[i].ins<<std::endl;
+            }
             code[i]=RS::launch(ROB_Table[i],i);
             end=true;
         } else if (ROB_Table[i].st == Issue) {
             if (RS::Qj[code[i]]==-1&&RS::Qk[code[i]]==-1) {//数据已经做好准备,可以ALUs伺候
                 calculate::cal(ROB_Table[i]);//答案数据准备好了，注意这边似乎还没有处理pc相关的任务，后续再说吧
                 ROB_Table[i].st=Exec;
-                 // std::cerr<<"ALU calculating...Consequences:"<<ROB_Table[i].value<<std::endl;
+                if (ok) {
+                    std::cerr<<"ALU calculating...Consequences:"<<ROB_Table[i].value<<std::endl;
+                }
                 CDB::add(i,ROB_Table[i].value);//加入队列中准备进行一个数据的广播(后面逻辑要改，变成循环队列后不应该用i来表示，而是map内置一个counter，这个i只是代表自己在第几行)
                 end=true;
                 if (!load.contains(ROB_Table[i].op)) {
@@ -258,7 +282,7 @@ bool ROB::execute_1() {
             }
             end=true;
         } else if (ROB_Table[i].st == Write) {//读写内存和寄存器,与LSB有关，我现在先不写
-            if (i==0||(ROB_Table[i-1].st==Commit) ){
+            if ((i==0&&head==0)||(ROB_Table[(i-1+MOD)%MOD].st==Commit )){
                 Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);
                 ROB_Table[i].st=Commit;
                 head++;
@@ -270,15 +294,28 @@ bool ROB::execute_1() {
                     const auto [fst, snd]=Ins_Cache::read();
                     ROB_Table[i].pc=snd;
                     ROB_Table[i].ins=fst;
-                    // if (ROB_Table[i].ins==0x00f54533) {
-                    //     std::cout<<p<<":"<<Register::regs[10]<<std::endl;
-                    //     ++p;
+                    if (ROB_Table[i].ins==0x00f54533) {
+                        std::cout<<p<<":"<<Register::regs[10]<<std::endl;
+                        ++p;
+                    }
+                    // if (ROB_Table[i].ins==0xfe079ae3) {
+                    //     std::cout<<q<<std::endl;
+                    //     ++q;
+                    //     // if (q==10000) {
+                    //     //     Memory::show_mem();
+                    //     // }
+                    // }
+                    // if (ROB_Table[i].pc==0x1044) {
+                    //     std::cout<<"函数调用:"<<Register::regs[10]<<"~"<<Register::regs[11]<<std::endl;
+                    //     ok=1;
                     // }
                     ROB_Table[i].st=Waiting;
                     tail++;
                     Register::pc=ROB_Table[i].pc;//当且仅当载入的时候正常修改pc,其他可能会修改pc的情况仅仅存在于ALU
                     end=true;
-                    // std::cerr<<"Loading instruction from Cache:(pc)"<<std::hex<<snd<<"  (ins)"<< std::setw(8)<< std::setfill('0')<<fst<<std::endl;
+                    if (ok==1) {
+                        std::cerr<<"Loading instruction from Cache:(pc)"<<std::hex<<snd<<"  (ins)"<< std::setw(8)<< std::setfill('0')<<fst<<std::endl;
+                    }
                 }else if (!Ins_Cache::cache_mem.empty()||Ins_Cache::st==WAITING||Ins_Cache::st==LAST_READ) {//如果其他指令都不再运行了，但是还有指令没有导入，但是指令队列空了，那我应该还要特判一下
                     end=true;//如果等待读入的站还没空,或者还处在等待状态中,我就不能随意结束程序
                 }
@@ -286,8 +323,11 @@ bool ROB::execute_1() {
                 if (instructions ins(ROB_Table[i].ins,ROB_Table[i].pc); ins.op=="uk") {
                     //我也不知道应该怎么办
                 }else {
-                    // std::cerr<<"Decoding:"<<"(decoded info)\n";
-                    // ins.show();
+                    if (ok==1) {
+                        std::cerr<<"Decoding:"<<"(decoded info)\n";
+                    ins.show();
+                    }
+
                     const int pc=ROB_Table[i].pc;//来个暗度陈仓
                     const __uint32_t instruction=ROB_Table[i].ins;
                     ROB_Table[i]=inst{ins};//Decode完成之后,我需要准备开始发射了
