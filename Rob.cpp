@@ -250,12 +250,9 @@ bool ROB::execute_1() {
                 if (ROB_Table[(i+MOD-1)%MOD].st==Commit){//上一条必须是已经Commit过了并且这回合没有其他提交过
                     if (add.contains(ROB_Table[i].op)) {
                         if (ROB_Table[i].ins==0x0ff00513) {
-                            if (Register::regs[10]==48) {
-                                std::cout<<std::dec<<(Register::regs[10]&0xFF)+2;
-                            }else {
+                           
                                 std::cout<<std::dec<<(Register::regs[10]&0xFF);
-                            }
-
+                            
                             exit(0);
                         }
                         Write_regs::execute(i,ROB_Table[i].rd,ROB_Table[i].value);//不写回去，而是保持原来的值
